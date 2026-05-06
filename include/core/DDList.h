@@ -4,22 +4,37 @@ template <typename T>
 class DDList
 {
     private:
-    int _maxSize;
+    int _capacity;
     int _size;
     T** _items;
 
+    void IncreaseMaxSize(int sizeIncrease)
+    {
+        if (sizeIncrease <= 0) sizeIncrease = 10;
+        int newMaxSize = _capacity + sizeIncrease;
+        T** newItemList = new T*[newMaxSize]{};
+        for (int i = 0; i < _size; i++)
+        {
+            newItemList[i] = _items[i];
+        }
+
+        delete[] _items;
+        _items = newItemList;
+        _capacity = newMaxSize;
+    }
+
     public:
-    DDList() : _maxSize{10}, _size{0}, _items{new T*[_maxSize]{}} {}
-    DDList(const DDList& other) : _maxSize{other._maxSize}, _size{other._size}, _items{new T*[_maxSize]{}}
+    DDList() : _capacity{10}, _size{0}, _items{new T*[_maxSize]{}} {}
+    DDList(const DDList& other) : _capacity{other._maxSize}, _size{other._size}, _items{new T*[_maxSize]{}}
     {
         for (int i = 0; i < other._size; i++)
         {
             _items[i] = other._items[i];
         }
     }
-    DDList(DDList&& other) noexcept : _maxSize{other._maxSize}, _size{other._size}, _items{other._items}
+    DDList(DDList&& other) noexcept : _capacity{other._maxSize}, _size{other._size}, _items{other._items}
     {
-        other._maxSize = 0;
+        other._capacity = 0;
         other._size = 0;
         other._items = nullptr;
     }
@@ -32,7 +47,7 @@ class DDList
     {
         if (this == &other) return *this;
 
-        T** newItems = new T*[other._maxSize]{};
+        T** newItems = new T*[other._capacity]{};
         for (int i = 0; i < other._size; i++)
         {
             newItems[i] = other._items[i];
@@ -40,7 +55,7 @@ class DDList
 
         delete[] _items;
 
-        _maxSize = other._maxSize;
+        _capacity = other._maxSize;
         _size = other._size;
         _items = newItems;
 
@@ -55,39 +70,40 @@ class DDList
 
         delete[] _items;
 
-        _maxSize = other._maxSize;
+        _capacity = other._maxSize;
         _size = other._size;
         _items = other._items;
 
-        other._maxSize = 0;
+        other._capacity = 0;
         other._size = 0;
         other._items = nullptr;
 
         return *this;
     }
 
-
-    void IncreaseMaxSize(int sizeIncrease)
+    int Size() const
     {
-        int newMaxSize = _maxSize + sizeIncrease;
-        T** newItemList = new T*[newMaxSize]{};
-        for (int i = 0; i < _size; i++)
-        {
-            newItemList[i] = _items[i];
-        }
+        return _size;
+    }
 
-        delete[] _items;
-        _items = newItemList;
-        _maxSize = newMaxSize;
+    T* GetAt(int index) const
+    {
+        if (index < 0 || index >= _size) return nullptr;
+        return _items[index];
     }
 
     void Add(T* item)
     {
-        if (_size + 1 > _maxSize)
+        if (_size + 1 > _capacity)
         {
-            IncreaseMaxSize(_maxSize);
+            IncreaseMaxSize(_capacity);
         }
 
         _items[_size++] = item;
+    }
+
+    void Clear()
+    {
+        _size = 0;
     }
 };
