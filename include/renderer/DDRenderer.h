@@ -11,7 +11,6 @@ class DDRenderer
     Window _window;
 
     int _screen;
-    bool _isRunning;
 
     int _windowWidth;
     int _windowHeight;
@@ -20,7 +19,7 @@ class DDRenderer
     DDRenderer();
 
     int Init();
-    void Run();
+    void Render();
     void Shutdown();
     void ResizeWindow(int width, int height);
 };
