@@ -4,12 +4,16 @@ project(DDEngine LANGUAGES CXX)
 find_package(X11 REQUIRED)
 add_executable(DDEngine 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/DDEngine.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/DDVector2.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/DDGameEngine.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/DDGameWorld.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/DDGameObject.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/renderer/DDRenderer.cpp
 )
 
 target_include_directories(DDEngine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/core
     ${CMAKE_CURRENT_SOURCE_DIR}/include/engine
     ${CMAKE_CURRENT_SOURCE_DIR}/include/renderer
 )

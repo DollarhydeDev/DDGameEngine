@@ -1,6 +1,8 @@
 #pragma once
 
 #include <X11/Xlib.h>
+#include "DDList.h"
+#include "DDGameObject.h"
 
 class DDRenderer
 {
@@ -9,17 +11,19 @@ class DDRenderer
     GC _gc;
     Window _rootWindow;
     Window _window;
+    Pixmap _backBuffer;
 
     int _screen;
-
     int _windowWidth;
     int _windowHeight;
 
     public:
     DDRenderer();
 
+    Display* GetDisplay();
+
     int Init();
-    void Render();
+    void Render(const DDList<DDGameObject>& gameObjects) const;
     void Shutdown();
     void ResizeWindow(int width, int height);
 };

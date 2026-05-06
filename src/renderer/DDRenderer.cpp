@@ -1,8 +1,15 @@
 #include "DDRenderer.h"
 #include <X11/Xlib.h>
+#include "DDList.h"
+#include "DDGameObject.h"
 
-DDRenderer::DDRenderer() : _display{nullptr}, _screen{-1}, _windowWidth{800}, _windowHeight{600}
+DDRenderer::DDRenderer() : _display{nullptr}, _gc{}, _rootWindow{}, _window{}, _backBuffer{}, _screen{-1}, _windowWidth{800}, _windowHeight{600}
 {}
+
+Display* DDRenderer::GetDisplay()
+{
+    return _display;
+}
 
 int DDRenderer::Init()
 {
@@ -18,10 +25,20 @@ int DDRenderer::Init()
         _display,
         _rootWindow,
         100, 100, // position
-        _windowWidth, _windowHeight, // size
+        _windowWidth,
+        _windowHeight,
         1,        // border width
         BlackPixel(_display, _screen),
         WhitePixel(_display, _screen)
+    );
+
+    _backBuffer = XCreatePixmap
+    (
+        _display,
+        _window,
+        _windowWidth,
+        _windowHeight,
+        DefaultDepth(_display, _screen)
     );
 
     XStoreName(_display, _window, "Basic X11 Window");
@@ -31,13 +48,24 @@ int DDRenderer::Init()
     return 0;
 }
 
-void DDRenderer::Render(DDGameObject* gameObjects, int count) // need to make DDList
+void DDRenderer::Render(const DDList<DDGameObject>& gameObjects) const // need to make DDList
 {
-    XClearWindow(_display, _window);
-    for (int i = 0; i < count; i++)
+    // Clear back buffer
+    XSetForeground(_display, _gc, WhitePixel(_display, _screen));
+    XFillRectangle(_display, _backBuffer, _gc, 0, 0, _windowWidth, _windowHeight);
+
+    // Draw objects to back buffer
+    XSetForeground(_display, _gc, BlackPixel(_display, _screen));
+
+    for (int i = 0; i < gameObjects.Size(); i++)
     {
-        XFillRectangle(_display, _window, _gc, gameObject->GetPosition()->x, gameObject->GetPosition()->y, 50, 50); // need to add scale
+        DDGameObject* gameObject = gameObjects.GetAt(i);
+        XFillRectangle(_display, _backBuffer, _gc, gameObject->GetPosition().x, gameObject->GetPosition().y, 50, 50); // need to add scale
     }
+
+    // Copy finished frame to visible window
+    XCopyArea(_display, _backBuffer, _window, _gc, 0, 0, _windowWidth, _windowHeight, 0, 0);
+    XFlush(_display);
 }
 
 void DDRenderer::ResizeWindow(int width, int height)

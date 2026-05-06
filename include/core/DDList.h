@@ -8,31 +8,16 @@ class DDList
     int _size;
     T** _items;
 
-    void IncreaseMaxSize(int sizeIncrease)
-    {
-        if (sizeIncrease <= 0) sizeIncrease = 10;
-        int newMaxSize = _capacity + sizeIncrease;
-        T** newItemList = new T*[newMaxSize]{};
-        for (int i = 0; i < _size; i++)
-        {
-            newItemList[i] = _items[i];
-        }
-
-        delete[] _items;
-        _items = newItemList;
-        _capacity = newMaxSize;
-    }
-
     public:
-    DDList() : _capacity{10}, _size{0}, _items{new T*[_maxSize]{}} {}
-    DDList(const DDList& other) : _capacity{other._maxSize}, _size{other._size}, _items{new T*[_maxSize]{}}
+    DDList() : _capacity{10}, _size{0}, _items{new T*[_capacity]{}} {}
+    DDList(const DDList& other) : _capacity{other._capacity}, _size{other._size}, _items{new T*[_capacity]{}}
     {
         for (int i = 0; i < other._size; i++)
         {
             _items[i] = other._items[i];
         }
     }
-    DDList(DDList&& other) noexcept : _capacity{other._maxSize}, _size{other._size}, _items{other._items}
+    DDList(DDList&& other) noexcept : _capacity{other._capacity}, _size{other._size}, _items{other._items}
     {
         other._capacity = 0;
         other._size = 0;
@@ -55,7 +40,7 @@ class DDList
 
         delete[] _items;
 
-        _capacity = other._maxSize;
+        _capacity = other._capacity;
         _size = other._size;
         _items = newItems;
 
@@ -70,7 +55,7 @@ class DDList
 
         delete[] _items;
 
-        _capacity = other._maxSize;
+        _capacity = other._capacity;
         _size = other._size;
         _items = other._items;
 
@@ -81,6 +66,23 @@ class DDList
         return *this;
     }
 
+    private:
+    void IncreaseMaxSize(int sizeIncrease)
+    {
+        if (sizeIncrease <= 0) sizeIncrease = 10;
+        int newMaxSize = _capacity + sizeIncrease;
+        T** newItemList = new T*[newMaxSize]{};
+        for (int i = 0; i < _size; i++)
+        {
+            newItemList[i] = _items[i];
+        }
+
+        delete[] _items;
+        _items = newItemList;
+        _capacity = newMaxSize;
+    }
+
+    public:
     int Size() const
     {
         return _size;

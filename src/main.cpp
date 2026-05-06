@@ -1,9 +1,9 @@
 #include <iostream>
-#include "DDEngine.h"
+#include "DDGameEngine.h"
 
 int main(int argc, char* argv[])
 {
-    DDEngine engine;
+    DDGameEngine engine;
 
     std::cout << "Initializing engine..." << std::endl;
     if (engine.Init() != 0) return -1;
