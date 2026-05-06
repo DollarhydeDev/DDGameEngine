@@ -6,7 +6,7 @@ DDEngine::~DDEngine()
 {
     for (int i = 0; i < _gameObjects.Size(); ++i)
     {
-        delete _gameObjects[i];
+        delete _gameObjects.GetAt(i);
     }
 
     _gameObjects.Clear();
@@ -28,9 +28,6 @@ void DDEngine::Run()
 
     while (isRunning)
     {
-        _renderer.Render(_gameObjects);
-
-
         // I think this waits for input
         // Bad for us because game doesn't move until player presses a key
         // Need to revisit
@@ -39,12 +36,9 @@ void DDEngine::Run()
 
         switch (event.type)
         {
-            case Expose:
-                _renderer.Render(_gameObjects, _gameObjectCount);
-                break;
-
             case KeyPress:
-                _isRunning = false;
+                DDGameObject* player = _gameObjects.GetAt(0);
+                player->SetPosition(player->GetPosition().x + 1, player->GetPosition().y);
                 break;
 
             case ConfigureNotify:
@@ -55,6 +49,8 @@ void DDEngine::Run()
                 _isRunning = false;
                 break;
         }
+
+        _renderer.Render(_gameObjects);
     }
 }
 
