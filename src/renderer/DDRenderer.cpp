@@ -41,7 +41,7 @@ int DDRenderer::Init()
         DefaultDepth(_display, _screen)
     );
 
-    XStoreName(_display, _window, "Basic X11 Window");
+    XStoreName(_display, _window, "GameWindow");
     XSelectInput(_display, _window, ExposureMask | KeyPressMask | KeyReleaseMask | StructureNotifyMask);
     XMapWindow(_display, _window);
 
