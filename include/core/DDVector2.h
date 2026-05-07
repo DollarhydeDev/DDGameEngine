@@ -3,9 +3,9 @@
 class DDVector2
 {
     public:
-    int x;
-    int y;
+    float x;
+    float y;
 
     DDVector2();
-    DDVector2(int x, int y);
+    DDVector2(float x, float y);
 };
