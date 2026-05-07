@@ -15,6 +15,12 @@ class DDGameEngine
     timespec _lastTime;
     bool _isRunning;
 
+    // Need to move this to some sort of input handler later
+    bool _upPressed = false;
+    bool _downPressed = false;
+    bool _leftPressed = false;
+    bool _rightPressed = false;
+
     float GetDeltaTime();
 
     public:
@@ -23,8 +29,8 @@ class DDGameEngine
 
     private:
     void Start();
-    void Update();
-    void Render();
+    void Update(float deltaTime);
+    void Render(float deltaTime);
     void ProcessEvents();
     
     public:

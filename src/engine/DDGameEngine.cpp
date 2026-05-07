@@ -28,19 +28,35 @@ void DDGameEngine::Start()
     clock_gettime(CLOCK_MONOTONIC, &_lastTime);
 }
 
-void DDGameEngine::Update()
+void DDGameEngine::Update(float deltaTime)
 {
-    _gameWorld.Update(GetDeltaTime());
+    // Here for testing. Will offload player logic to somewhere else later.
+    float playerSpeed = 300.0f;
+    float distance = playerSpeed * deltaTime;
+
+    DDGameObject* player = _gameWorld.GetWorldGameObjects().GetAt(0);
+
+    float x = player->GetPosition().x;
+    float y = player->GetPosition().y;
+
+    if (_upPressed)    y -= distance;
+    if (_downPressed)  y += distance;
+    if (_leftPressed)  x -= distance;
+    if (_rightPressed) x += distance;
+
+    player->SetPosition(x, y);
+
+    _gameWorld.Update(deltaTime);
 }
 
-void DDGameEngine::Render()
+void DDGameEngine::Render(float deltaTime)
 {
-    _renderer.Render(_gameWorld.GetWorldGameObjects());
+    _renderer.Render(_gameWorld.GetWorldGameObjects(), deltaTime);
 }
 
 void DDGameEngine::ProcessEvents()
 {
-    while(XPending(_renderer.GetDisplay()) > 0)
+    while (XPending(_renderer.GetDisplay()) > 0)
     {
         XEvent event;
         XNextEvent(_renderer.GetDisplay(), &event);
@@ -50,43 +66,40 @@ void DDGameEngine::ProcessEvents()
             case KeyPress:
             {
                 KeySym key = XLookupKeysym(&event.xkey, 0);
-                if (key == XK_Escape) { _isRunning = false; return; }
 
-                if (key == XK_Up)
+                if (key == XK_Escape)
                 {
-                    DDGameObject* player = _gameWorld.GetWorldGameObjects().GetAt(0);
-                    player->SetPosition(player->GetPosition().x, player->GetPosition().y - 1);
+                    _isRunning = false;
+                    return;
                 }
-                else if (key == XK_Down)
-                {
-                    DDGameObject* player = _gameWorld.GetWorldGameObjects().GetAt(0);
-                    player->SetPosition(player->GetPosition().x, player->GetPosition().y + 1);
-                }
-                else if (key == XK_Right)
-                {
-                    DDGameObject* player = _gameWorld.GetWorldGameObjects().GetAt(0);
-                    player->SetPosition(player->GetPosition().x + 1, player->GetPosition().y);
-                }
-                else if (key == XK_Left)
-                {
-                    DDGameObject* player = _gameWorld.GetWorldGameObjects().GetAt(0);
-                    player->SetPosition(player->GetPosition().x - 1, player->GetPosition().y);
-                }
+
+                if (key == XK_w) _upPressed = true;
+                if (key == XK_s) _downPressed = true;
+                if (key == XK_a) _leftPressed = true;
+                if (key == XK_d) _rightPressed = true;
+
+                break;
+            }
+
+            case KeyRelease:
+            {
+                KeySym key = XLookupKeysym(&event.xkey, 0);
+
+                if (key == XK_w) _upPressed = false;
+                if (key == XK_s) _downPressed = false;
+                if (key == XK_a) _leftPressed = false;
+                if (key == XK_d) _rightPressed = false;
 
                 break;
             }
 
             case ConfigureNotify:
-            {
                 _renderer.ResizeWindow(event.xconfigure.width, event.xconfigure.height);
                 break;
-            }
 
             case DestroyNotify:
-            {
                 _isRunning = false;
                 break;
-            }
         }
     }
 }
@@ -103,9 +116,17 @@ void DDGameEngine::Run()
 
     while(_isRunning)
     {
+        float deltaTime = GetDeltaTime();
         ProcessEvents();
-        Update();
-        Render();
+        Update(deltaTime);
+        Render(deltaTime);
+        
+        timespec sleepTime;
+        sleepTime.tv_sec = 0;
+        // sleepTime.tv_nsec = 16000000; // 60 fps
+        sleepTime.tv_nsec = 8000000; // 120 fps
+
+        nanosleep(&sleepTime, nullptr);
     }
 }
 
