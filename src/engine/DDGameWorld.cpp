@@ -29,7 +29,7 @@ void DDGameWorld::Init()
 void DDGameWorld::Start()
 {
     // Add player for testing
-    DDGameObject* player = new DDGameObject();
+    DDGameObject* player = new DDGameObject(20, 20, 300, 180);
     _worldGameObjects.Add(player);
 
     for (int i = 0; i < _worldGameObjects.Size(); i++)
