@@ -1,20 +1,36 @@
 #include "DDGameEngine.h"
+
 #include "X11/Xlib.h"
 #include <X11/keysym.h>
+#include <time.h>
 
 DDGameEngine::DDGameEngine() : _renderer{}, _gameWorld{this}, _isRunning{false} {}
 DDGameEngine::~DDGameEngine(){}
+
+float DDGameEngine::GetDeltaTime()
+{
+    timespec currentTime;
+    clock_gettime(CLOCK_MONOTONIC, &currentTime);
+
+    long seconds = currentTime.tv_sec - _lastTime.tv_sec;
+    long nanoSeconds = currentTime.tv_nsec - _lastTime.tv_nsec;
+
+    float deltaTime = (float)seconds + (float)nanoSeconds / 1000000000.0f;
+    _lastTime = currentTime;
+
+    return deltaTime;
+}
 
 void DDGameEngine::Start()
 {
     _isRunning = true;
     _gameWorld.Start();
+    clock_gettime(CLOCK_MONOTONIC, &_lastTime);
 }
 
 void DDGameEngine::Update()
 {
-    float deltaTime = 0; // need to figure out how to get this
-    _gameWorld.Update(deltaTime);
+    _gameWorld.Update(GetDeltaTime());
 }
 
 void DDGameEngine::Render()
