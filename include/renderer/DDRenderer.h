@@ -23,7 +23,7 @@ class DDRenderer
     Display* GetDisplay();
 
     int Init();
-    void Render(const DDList<DDGameObject>& gameObjects) const;
+    void Render(const DDList<DDGameObject>& gameObjects, float deltaTime) const;
     void Shutdown();
     void ResizeWindow(int width, int height);
 };
