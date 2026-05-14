@@ -101,7 +101,7 @@ bool DDPlatformLinux::PollEvent(DDPlatformEvent& event)
     }
 
     default:
-        event.type = DDPlatformEvent::None;
+        event.type = DDPlatformEvent::DD_EVENT_NONE;
         return true;
     }
 }
