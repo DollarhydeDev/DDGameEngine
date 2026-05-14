@@ -1,8 +1,6 @@
 #include "DDRendererWindows.h"
 
 #include "IDDPlatform.h"
-#include "DDList.h"
-#include "DDGameObject.h"
 
 DDRendererWindows::DDRendererWindows()
     : _window{ nullptr },
@@ -36,10 +34,9 @@ int DDRendererWindows::Init(IDDPlatform* platform)
     return 0;
 }
 
-void DDRendererWindows::Render(const DDList<DDGameObject>& gameObjects, float deltaTime) const
+void DDRendererWindows::BeginFrame()
 {
     HBRUSH whiteBrush = (HBRUSH)GetStockObject(WHITE_BRUSH);
-    HBRUSH blackBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
 
     RECT clearRect{};
     clearRect.left = 0;
@@ -48,67 +45,31 @@ void DDRendererWindows::Render(const DDList<DDGameObject>& gameObjects, float de
     clearRect.bottom = _windowHeight;
 
     FillRect(_backBufferDC, &clearRect, whiteBrush);
+}
 
-    for (int i = 0; i < gameObjects.Size(); i++)
-    {
-        DDGameObject* gameObject = gameObjects.GetAt(i);
+void DDRendererWindows::DrawRect2D(float x, float y, float width, float height)
+{
+    HBRUSH blackBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
 
-        RECT objectRect{};
-        objectRect.left = (LONG)gameObject->GetPosition().x;
-        objectRect.top = (LONG)gameObject->GetPosition().y;
-        objectRect.right = objectRect.left + (LONG)gameObject->GetScale().x;
-        objectRect.bottom = objectRect.top + (LONG)gameObject->GetScale().y;
+    RECT rect{};
+    rect.left = (LONG)x;
+    rect.top = (LONG)y;
+    rect.right = rect.left + (LONG)width;
+    rect.bottom = rect.top + (LONG)height;
 
-        FillRect(_backBufferDC, &objectRect, blackBrush);
-    }
+    FillRect(_backBufferDC, &rect, blackBrush);
+}
 
-    char fpsText[15];
-    fpsText[0] = 'F';
-    fpsText[1] = 'P';
-    fpsText[2] = 'S';
-    fpsText[3] = ':';
-    fpsText[4] = ' ';
-
-    int index = 5;
-    int fps = (int)(deltaTime > 0.0f ? 1.0f / deltaTime : 0.0f);
-
-    if (fps == 0)
-    {
-        fpsText[index++] = '0';
-    }
-    else
-    {
-        int fpsDigitCount = 0;
-        char reversedFpsText[10];
-
-        while (fps > 0 && fpsDigitCount < 10)
-        {
-            reversedFpsText[fpsDigitCount++] = '0' + (fps % 10);
-            fps /= 10;
-        }
-
-        for (int i = fpsDigitCount - 1; i >= 0; i--)
-        {
-            fpsText[index++] = reversedFpsText[i];
-        }
-    }
-
+void DDRendererWindows::DrawText2D(int x, int y, const char* text, int length)
+{
     SetBkMode(_backBufferDC, TRANSPARENT);
     SetTextColor(_backBufferDC, RGB(0, 0, 0));
-    TextOutA(_backBufferDC, 10, 10, fpsText, index);
+    TextOutA(_backBufferDC, x, y, text, length);
+}
 
-    BitBlt
-    (
-        _windowDC,
-        0,
-        0,
-        _windowWidth,
-        _windowHeight,
-        _backBufferDC,
-        0,
-        0,
-        SRCCOPY
-    );
+void DDRendererWindows::EndFrame()
+{
+    BitBlt(_windowDC, 0, 0, _windowWidth, _windowHeight, _backBufferDC, 0, 0, SRCCOPY);
 }
 
 void DDRendererWindows::ResizeWindow(int width, int height)

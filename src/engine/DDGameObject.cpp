@@ -1,44 +1,46 @@
-#include <DDGameObject.h>
+#include "DDGameObject.h"
 
-DDGameObject::DDGameObject(){}
-DDGameObject::DDGameObject(int scaleX, int scaleY, int posX, int posY)
+DDGameObject::DDGameObject() : _gameObjectID{ -1 }, _world{ nullptr }, _transform{ nullptr }, _render{ nullptr }
+{}
+
+DDGameObject::DDGameObject(int gameObjectID, DDGameWorld* world) : _gameObjectID{ gameObjectID }, _world{ world }, _transform{ nullptr }, _render{ nullptr }
+{}
+
+int DDGameObject::GetGameObjectID() const
 {
-    _scale.x = scaleX;
-    _scale.y = scaleY;
+    return _gameObjectID;
+}
 
-    _position.x = posX;
-    _position.y = posY;
+DDGameWorld* DDGameObject::GetWorld() const
+{
+    return _world;
+}
+
+DDTransformComponent* DDGameObject::GetTransform() const
+{
+    return _transform;
+}
+
+void DDGameObject::SetTransform(DDTransformComponent* transform)
+{
+    _transform = transform;
+}
+
+DDRenderComponent* DDGameObject::GetRender() const
+{
+    return _render;
+}
+
+void DDGameObject::SetRender(DDRenderComponent* render)
+{
+    _render = render;
 }
 
 void DDGameObject::Init()
-{
+{}
 
-}
 void DDGameObject::Start()
-{
+{}
 
-}
 void DDGameObject::Update(float deltaTime)
-{
-
-}
-
-const DDVector2& DDGameObject::GetScale() const
-{
-    return _scale;
-}
-void DDGameObject::SetScale(int x, int y)
-{
-    _scale.x = x;
-    _scale.y = y;
-}
-
-const DDVector2& DDGameObject::GetPosition() const
-{
-    return _position;
-}
-void DDGameObject::SetPosition(int x, int y)
-{
-    _position.x = x;
-    _position.y = y;
-}
+{}

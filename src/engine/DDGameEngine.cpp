@@ -4,6 +4,8 @@
 #include "IDDRenderer.h"
 #include "DDGameObject.h"
 #include "DDGameWorld.h"
+#include "DDTransformComponent.h"
+#include "DDVector2.h"
 
 #if defined(_WIN32)
 #include "DDPlatformWindows.h"
@@ -37,7 +39,7 @@ static IDDRenderer* CreateRenderer()
 #endif
 }
 
-DDGameEngine::DDGameEngine() : _platform{ CreatePlatform() }, _renderer{ CreateRenderer() }, _gameWorld{ this }, _isRunning{ false }
+DDGameEngine::DDGameEngine() : _platform{ CreatePlatform() }, _renderer{ CreateRenderer() }, _gameWorld{ this }, _renderSystem{}, _inputSystem{}, _isRunning{ false }
 {}
 
 DDGameEngine::~DDGameEngine()
@@ -57,27 +59,35 @@ void DDGameEngine::Start()
 
 void DDGameEngine::Update(float deltaTime)
 {
+    if (_inputSystem.IsKeyDown(DD_KEY_ESCAPE)) _isRunning = false;
+
     float playerSpeed = 300.0f;
     float distance = playerSpeed * deltaTime;
 
     DDGameObject* player = _gameWorld.GetWorldGameObjects().GetAt(0);
+    if (!player) return;
 
-    float x = player->GetPosition().x;
-    float y = player->GetPosition().y;
+    DDTransformComponent* transform = player->GetTransform();
+    if (!transform) return;
 
-    if (_upPressed) y -= distance;
-    if (_downPressed) y += distance;
-    if (_leftPressed) x -= distance;
-    if (_rightPressed) x += distance;
+    const DDVector2& position = transform->GetPosition();
 
-    player->SetPosition(x, y);
+    float x = position.x;
+    float y = position.y;
+
+    if (_inputSystem.IsKeyDown(DD_KEY_W)) y -= distance;
+    if (_inputSystem.IsKeyDown(DD_KEY_S)) y += distance;
+    if (_inputSystem.IsKeyDown(DD_KEY_A)) x -= distance;
+    if (_inputSystem.IsKeyDown(DD_KEY_D)) x += distance;
+
+    transform->SetPosition(x, y);
 
     _gameWorld.Update(deltaTime);
 }
 
 void DDGameEngine::Render(float deltaTime)
 {
-    _renderer->Render(_gameWorld.GetWorldGameObjects(), deltaTime);
+    _renderSystem.Render(&_gameWorld, _renderer);
 }
 
 void DDGameEngine::ProcessEvents()
@@ -86,25 +96,12 @@ void DDGameEngine::ProcessEvents()
 
     while (_platform->PollEvent(event))
     {
+        _inputSystem.ProcessEvent(event);
+
         switch (event.type)
         {
         case DDPlatformEvent::DD_EVENT_QUIT:
             _isRunning = false;
-            break;
-
-        case DDPlatformEvent::DD_EVENT_KEY_DOWN:
-            if (event.key == DD_KEY_ESCAPE) _isRunning = false;
-            if (event.key == DD_KEY_W) _upPressed = true;
-            if (event.key == DD_KEY_S) _downPressed = true;
-            if (event.key == DD_KEY_A) _leftPressed = true;
-            if (event.key == DD_KEY_D) _rightPressed = true;
-            break;
-
-        case DDPlatformEvent::DD_EVENT_KEY_UP:
-            if (event.key == DD_KEY_W) _upPressed = false;
-            if (event.key == DD_KEY_S) _downPressed = false;
-            if (event.key == DD_KEY_A) _leftPressed = false;
-            if (event.key == DD_KEY_D) _rightPressed = false;
             break;
 
         case DDPlatformEvent::DD_EVENT_RESIZE:
@@ -135,6 +132,8 @@ void DDGameEngine::Run()
     while (_isRunning)
     {
         float deltaTime = _platform->GetDeltaTime();
+
+        _inputSystem.BeginFrame();
 
         ProcessEvents();
         Update(deltaTime);

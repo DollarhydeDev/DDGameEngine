@@ -1,6 +1,8 @@
 #pragma once
 
 #include "DDGameWorld.h"
+#include "DDRenderSystem.h"
+#include "DDInputSystem.h"
 
 class IDDPlatform;
 class IDDRenderer;
@@ -12,12 +14,10 @@ private:
     IDDRenderer* _renderer;
 
     DDGameWorld _gameWorld;
-    bool _isRunning;
+    DDRenderSystem _renderSystem;
+    DDInputSystem _inputSystem;
 
-    bool _upPressed = false;
-    bool _downPressed = false;
-    bool _leftPressed = false;
-    bool _rightPressed = false;
+    bool _isRunning;
 
 public:
     DDGameEngine();

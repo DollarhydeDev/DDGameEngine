@@ -1,23 +1,31 @@
 #pragma once
 
-#include "DDVector2.h"
+class DDGameWorld;
+class DDTransformComponent;
+class DDRenderComponent;
 
 class DDGameObject
 {
-    private:
-    DDVector2 _position;
-    DDVector2 _scale;
+private:
+    int _gameObjectID;
+    DDGameWorld* _world;
 
-    public:
-    const DDVector2& GetScale() const;
-    void SetScale(int x, int y);
+    DDTransformComponent* _transform;
+    DDRenderComponent* _render;
 
-    const DDVector2& GetPosition() const;
-    void SetPosition(int x, int y);
+public:
+    int GetGameObjectID() const;
+    DDGameWorld* GetWorld() const;
 
-    public:
+    DDTransformComponent* GetTransform() const;
+    void SetTransform(DDTransformComponent* transform);
+
+    DDRenderComponent* GetRender() const;
+    void SetRender(DDRenderComponent* render);
+
+public:
     DDGameObject();
-    DDGameObject(int scaleX, int scaleY, int posX, int posY);
+    DDGameObject(int gameObjectID, DDGameWorld* world);
 
     void Init();
     void Start();

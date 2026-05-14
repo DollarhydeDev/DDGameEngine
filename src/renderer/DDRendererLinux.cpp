@@ -1,8 +1,6 @@
 #include "DDRendererLinux.h"
 
 #include "IDDPlatform.h"
-#include "DDList.h"
-#include "DDGameObject.h"
 
 DDRendererLinux::DDRendererLinux()
     : _display{ nullptr },
@@ -26,90 +24,33 @@ int DDRendererLinux::Init(IDDPlatform* platform)
     _screen = XDefaultScreen(_display);
     _gc = XDefaultGC(_display, _screen);
 
-    _backBuffer = XCreatePixmap
-    (
-        _display,
-        _window,
-        _windowWidth,
-        _windowHeight,
-        DefaultDepth(_display, _screen)
-    );
-
+    _backBuffer = XCreatePixmap(_display, _window, _windowWidth, _windowHeight, DefaultDepth(_display, _screen));
     if (!_backBuffer) return -1;
 
     return 0;
 }
 
-void DDRendererLinux::Render(const DDList<DDGameObject>& gameObjects, float deltaTime) const
+void DDRendererLinux::BeginFrame()
 {
     XSetForeground(_display, _gc, WhitePixel(_display, _screen));
     XFillRectangle(_display, _backBuffer, _gc, 0, 0, _windowWidth, _windowHeight);
+}
 
+void DDRendererLinux::DrawRect2D(float x, float y, float width, float height)
+{
     XSetForeground(_display, _gc, BlackPixel(_display, _screen));
+    XFillRectangle(_display, _backBuffer, _gc, (int)x, (int)y, (unsigned int)width, (unsigned int)height);
+}
 
-    for (int i = 0; i < gameObjects.Size(); i++)
-    {
-        DDGameObject* gameObject = gameObjects.GetAt(i);
+void DDRendererLinux::DrawText2D(int x, int y, const char* text, int length)
+{
+    XSetForeground(_display, _gc, BlackPixel(_display, _screen));
+    XDrawString(_display, _backBuffer, _gc, x, y, text, length);
+}
 
-        XFillRectangle
-        (
-            _display,
-            _backBuffer,
-            _gc,
-            (int)gameObject->GetPosition().x,
-            (int)gameObject->GetPosition().y,
-            (unsigned int)gameObject->GetScale().x,
-            (unsigned int)gameObject->GetScale().y
-        );
-    }
-
-    char fpsText[15];
-    fpsText[0] = 'F';
-    fpsText[1] = 'P';
-    fpsText[2] = 'S';
-    fpsText[3] = ':';
-    fpsText[4] = ' ';
-
-    int index = 5;
-    int fps = (int)(deltaTime > 0.0f ? 1.0f / deltaTime : 0.0f);
-
-    if (fps == 0)
-    {
-        fpsText[index++] = '0';
-    }
-    else
-    {
-        int fpsDigitCount = 0;
-        char reversedFpsText[10];
-
-        while (fps > 0 && fpsDigitCount < 10)
-        {
-            reversedFpsText[fpsDigitCount++] = '0' + (fps % 10);
-            fps /= 10;
-        }
-
-        for (int i = fpsDigitCount - 1; i >= 0; i--)
-        {
-            fpsText[index++] = reversedFpsText[i];
-        }
-    }
-
-    XDrawString(_display, _backBuffer, _gc, 10, 20, fpsText, index);
-
-    XCopyArea
-    (
-        _display,
-        _backBuffer,
-        _window,
-        _gc,
-        0,
-        0,
-        _windowWidth,
-        _windowHeight,
-        0,
-        0
-    );
-
+void DDRendererLinux::EndFrame()
+{
+    XCopyArea(_display, _backBuffer, _window, _gc, 0, 0, _windowWidth, _windowHeight, 0, 0);
     XFlush(_display);
 }
 
@@ -121,15 +62,7 @@ void DDRendererLinux::ResizeWindow(int width, int height)
     if (_display && _window && _backBuffer)
     {
         XFreePixmap(_display, _backBuffer);
-
-        _backBuffer = XCreatePixmap
-        (
-            _display,
-            _window,
-            _windowWidth,
-            _windowHeight,
-            DefaultDepth(_display, _screen)
-        );
+        _backBuffer = XCreatePixmap(_display, _window, _windowWidth, _windowHeight, DefaultDepth(_display, _screen));
     }
 }
 

@@ -1,22 +1,39 @@
 #pragma once
 
-// Includes
 #include "DDList.h"
 #include "DDGameObject.h"
+#include "DDComponent.h"
+#include "DDTransformComponent.h"
+#include "DDRenderComponent.h"
 
-// Forward declares
 class DDGameEngine;
 
 class DDGameWorld
 {
-    private:
+private:
     DDGameEngine* _gameEngine;
+
+    int _nextGameObjectID;
+    int _nextComponentID;
+
     DDList<DDGameObject> _worldGameObjects;
+    DDList<DDComponent> _worldComponents;
+    DDList<DDTransformComponent> _transformComponents;
+    DDList<DDRenderComponent> _renderComponents;
 
-    public:
+public:
     const DDList<DDGameObject>& GetWorldGameObjects() const;
+    const DDList<DDComponent>& GetWorldComponents() const;
+    const DDList<DDTransformComponent>& GetTransformComponents() const;
+    const DDList<DDRenderComponent>& GetRenderComponents() const;
 
-    public:
+    DDGameObject* SpawnGameObject();
+    DDGameObject* SpawnGameObject(float scaleX, float scaleY, float posX, float posY);
+
+    DDTransformComponent* SpawnTransformComponent(DDGameObject* owner);
+    DDRenderComponent* SpawnRenderComponent(DDGameObject* owner);
+
+public:
     DDGameWorld(DDGameEngine* gameEngine);
     ~DDGameWorld();
 
