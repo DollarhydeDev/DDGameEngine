@@ -1,36 +1,62 @@
 #include "DDGameEngine.h"
 
-#include "X11/Xlib.h"
-#include <X11/keysym.h>
-#include <time.h>
+#include "IDDPlatform.h"
+#include "IDDRenderer.h"
+#include "DDGameObject.h"
+#include "DDGameWorld.h"
 
-DDGameEngine::DDGameEngine() : _renderer{}, _gameWorld{this}, _isRunning{false} {}
-DDGameEngine::~DDGameEngine(){}
+#if defined(_WIN32)
+#include "DDPlatformWindows.h"
+#include "DDRendererWindows.h"
+#elif defined(__linux__)
+#include "DDPlatformLinux.h"
+#include "DDRendererLinux.h"
+#else
+#error Unsupported platform
+#endif
 
-float DDGameEngine::GetDeltaTime()
+static IDDPlatform* CreatePlatform()
 {
-    timespec currentTime;
-    clock_gettime(CLOCK_MONOTONIC, &currentTime);
+#if defined(_WIN32)
+    return new DDPlatformWindows();
+#elif defined(__linux__)
+    return new DDPlatformLinux();
+#else
+    return nullptr;
+#endif
+}
 
-    long seconds = currentTime.tv_sec - _lastTime.tv_sec;
-    long nanoSeconds = currentTime.tv_nsec - _lastTime.tv_nsec;
+static IDDRenderer* CreateRenderer()
+{
+#if defined(_WIN32)
+    return new DDRendererWindows();
+#elif defined(__linux__)
+    return new DDRendererLinux();
+#else
+    return nullptr;
+#endif
+}
 
-    float deltaTime = (float)seconds + (float)nanoSeconds / 1000000000.0f;
-    _lastTime = currentTime;
+DDGameEngine::DDGameEngine() : _platform{ CreatePlatform() }, _renderer{ CreateRenderer() }, _gameWorld{ this }, _isRunning{ false }
+{}
 
-    return deltaTime;
+DDGameEngine::~DDGameEngine()
+{
+    delete _renderer;
+    _renderer = nullptr;
+
+    delete _platform;
+    _platform = nullptr;
 }
 
 void DDGameEngine::Start()
 {
     _isRunning = true;
     _gameWorld.Start();
-    clock_gettime(CLOCK_MONOTONIC, &_lastTime);
 }
 
 void DDGameEngine::Update(float deltaTime)
 {
-    // Here for testing. Will offload player logic to somewhere else later.
     float playerSpeed = 300.0f;
     float distance = playerSpeed * deltaTime;
 
@@ -39,9 +65,9 @@ void DDGameEngine::Update(float deltaTime)
     float x = player->GetPosition().x;
     float y = player->GetPosition().y;
 
-    if (_upPressed)    y -= distance;
-    if (_downPressed)  y += distance;
-    if (_leftPressed)  x -= distance;
+    if (_upPressed) y -= distance;
+    if (_downPressed) y += distance;
+    if (_leftPressed) x -= distance;
     if (_rightPressed) x += distance;
 
     player->SetPosition(x, y);
@@ -51,62 +77,54 @@ void DDGameEngine::Update(float deltaTime)
 
 void DDGameEngine::Render(float deltaTime)
 {
-    _renderer.Render(_gameWorld.GetWorldGameObjects(), deltaTime);
+    _renderer->Render(_gameWorld.GetWorldGameObjects(), deltaTime);
 }
 
 void DDGameEngine::ProcessEvents()
 {
-    while (XPending(_renderer.GetDisplay()) > 0)
-    {
-        XEvent event;
-        XNextEvent(_renderer.GetDisplay(), &event);
+    DDPlatformEvent event{};
 
+    while (_platform->PollEvent(event))
+    {
         switch (event.type)
         {
-            case KeyPress:
-            {
-                KeySym key = XLookupKeysym(&event.xkey, 0);
+        case DDPlatformEvent::Quit:
+            _isRunning = false;
+            break;
 
-                if (key == XK_Escape)
-                {
-                    _isRunning = false;
-                    return;
-                }
+        case DDPlatformEvent::KeyDown:
+            if (event.key == DD_KEY_ESCAPE) _isRunning = false;
+            if (event.key == DD_KEY_W) _upPressed = true;
+            if (event.key == DD_KEY_S) _downPressed = true;
+            if (event.key == DD_KEY_A) _leftPressed = true;
+            if (event.key == DD_KEY_D) _rightPressed = true;
+            break;
 
-                if (key == XK_w) _upPressed = true;
-                if (key == XK_s) _downPressed = true;
-                if (key == XK_a) _leftPressed = true;
-                if (key == XK_d) _rightPressed = true;
+        case DDPlatformEvent::KeyUp:
+            if (event.key == DD_KEY_W) _upPressed = false;
+            if (event.key == DD_KEY_S) _downPressed = false;
+            if (event.key == DD_KEY_A) _leftPressed = false;
+            if (event.key == DD_KEY_D) _rightPressed = false;
+            break;
 
-                break;
-            }
+        case DDPlatformEvent::Resize:
+            _renderer->ResizeWindow(event.width, event.height);
+            break;
 
-            case KeyRelease:
-            {
-                KeySym key = XLookupKeysym(&event.xkey, 0);
-
-                if (key == XK_w) _upPressed = false;
-                if (key == XK_s) _downPressed = false;
-                if (key == XK_a) _leftPressed = false;
-                if (key == XK_d) _rightPressed = false;
-
-                break;
-            }
-
-            case ConfigureNotify:
-                _renderer.ResizeWindow(event.xconfigure.width, event.xconfigure.height);
-                break;
-
-            case DestroyNotify:
-                _isRunning = false;
-                break;
+        default:
+            break;
         }
     }
 }
 
 int DDGameEngine::Init()
 {
-    if (_renderer.Init() != 0) return -1;
+    if (!_platform) return -1;
+    if (!_renderer) return -1;
+
+    if (_platform->Init(800, 600, "GameWindow") != 0) return -1;
+    if (_renderer->Init(_platform) != 0) return -1;
+
     return 0;
 }
 
@@ -114,23 +132,20 @@ void DDGameEngine::Run()
 {
     Start();
 
-    while(_isRunning)
+    while (_isRunning)
     {
-        float deltaTime = GetDeltaTime();
+        float deltaTime = _platform->GetDeltaTime();
+
         ProcessEvents();
         Update(deltaTime);
         Render(deltaTime);
-        
-        timespec sleepTime;
-        sleepTime.tv_sec = 0;
-        // sleepTime.tv_nsec = 16000000; // 60 fps
-        sleepTime.tv_nsec = 8000000; // 120 fps
 
-        nanosleep(&sleepTime, nullptr);
+        _platform->SleepMilliseconds(8);
     }
 }
 
 void DDGameEngine::Shutdown()
 {
-    _renderer.Shutdown();
+    if (_renderer) _renderer->Shutdown();
+    if (_platform) _platform->Shutdown();
 }
