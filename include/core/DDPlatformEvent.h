@@ -1,18 +1,21 @@
 #pragma once
 
+#include "DDKey.h"
+
 struct DDPlatformEvent
 {
-    enum Type
+    enum DDPlatformEventType
     {
-        None = 0,
-        Quit,
-        KeyDown,
-        KeyUp,
-        Resize
+        DD_EVENT_NONE = 0,
+        DD_EVENT_QUIT,
+        DD_EVENT_KEY_DOWN,
+        DD_EVENT_KEY_UP,
+        DD_EVENT_RESIZE
     };
 
-    Type type = None;
+    DDPlatformEventType type = DD_EVENT_NONE;
     DDKey key = DD_KEY_UNKNOWN;
+
     int width = 0;
     int height = 0;
 };

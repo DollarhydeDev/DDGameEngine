@@ -88,11 +88,11 @@ void DDGameEngine::ProcessEvents()
     {
         switch (event.type)
         {
-        case DDPlatformEvent::Quit:
+        case DDPlatformEvent::DD_EVENT_QUIT:
             _isRunning = false;
             break;
 
-        case DDPlatformEvent::KeyDown:
+        case DDPlatformEvent::DD_EVENT_KEY_DOWN:
             if (event.key == DD_KEY_ESCAPE) _isRunning = false;
             if (event.key == DD_KEY_W) _upPressed = true;
             if (event.key == DD_KEY_S) _downPressed = true;
@@ -100,14 +100,14 @@ void DDGameEngine::ProcessEvents()
             if (event.key == DD_KEY_D) _rightPressed = true;
             break;
 
-        case DDPlatformEvent::KeyUp:
+        case DDPlatformEvent::DD_EVENT_KEY_UP:
             if (event.key == DD_KEY_W) _upPressed = false;
             if (event.key == DD_KEY_S) _downPressed = false;
             if (event.key == DD_KEY_A) _leftPressed = false;
             if (event.key == DD_KEY_D) _rightPressed = false;
             break;
 
-        case DDPlatformEvent::Resize:
+        case DDPlatformEvent::DD_EVENT_RESIZE:
             _renderer->ResizeWindow(event.width, event.height);
             break;
 

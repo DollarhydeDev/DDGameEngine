@@ -70,7 +70,7 @@ bool DDPlatformLinux::PollEvent(DDPlatformEvent& event)
     case KeyPress:
     {
         KeySym key = XLookupKeysym(&xEvent.xkey, 0);
-        event.type = DDPlatformEvent::KeyDown;
+        event.type = DDPlatformEvent::DD_EVENT_KEY_DOWN;
         event.key = TranslateKey(key);
         return true;
     }
@@ -78,7 +78,7 @@ bool DDPlatformLinux::PollEvent(DDPlatformEvent& event)
     case KeyRelease:
     {
         KeySym key = XLookupKeysym(&xEvent.xkey, 0);
-        event.type = DDPlatformEvent::KeyUp;
+        event.type = DDPlatformEvent::DD_EVENT_KEY_UP;
         event.key = TranslateKey(key);
         return true;
     }
@@ -88,7 +88,7 @@ bool DDPlatformLinux::PollEvent(DDPlatformEvent& event)
         _windowWidth = xEvent.xconfigure.width;
         _windowHeight = xEvent.xconfigure.height;
 
-        event.type = DDPlatformEvent::Resize;
+        event.type = DDPlatformEvent::DD_EVENT_RESIZE;
         event.width = _windowWidth;
         event.height = _windowHeight;
         return true;
@@ -96,7 +96,7 @@ bool DDPlatformLinux::PollEvent(DDPlatformEvent& event)
 
     case DestroyNotify:
     {
-        event.type = DDPlatformEvent::Quit;
+        event.type = DDPlatformEvent::DD_EVENT_QUIT;
         return true;
     }
 

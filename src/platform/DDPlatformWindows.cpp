@@ -95,20 +95,20 @@ bool DDPlatformWindows::PollEvent(DDPlatformEvent& event)
         {
         case WM_QUIT:
         {
-            event.type = DDPlatformEvent::Quit;
+            event.type = DDPlatformEvent::DD_EVENT_QUIT;
             return true;
         }
 
         case WM_KEYDOWN:
         {
-            event.type = DDPlatformEvent::KeyDown;
+            event.type = DDPlatformEvent::DD_EVENT_KEY_DOWN;
             event.key = TranslateKey(msg.wParam);
             return true;
         }
 
         case WM_KEYUP:
         {
-            event.type = DDPlatformEvent::KeyUp;
+            event.type = DDPlatformEvent::DD_EVENT_KEY_UP;
             event.key = TranslateKey(msg.wParam);
             return true;
         }
@@ -118,7 +118,7 @@ bool DDPlatformWindows::PollEvent(DDPlatformEvent& event)
             _windowWidth = LOWORD(msg.lParam);
             _windowHeight = HIWORD(msg.lParam);
 
-            event.type = DDPlatformEvent::Resize;
+            event.type = DDPlatformEvent::DD_EVENT_RESIZE;
             event.width = _windowWidth;
             event.height = _windowHeight;
             return true;
