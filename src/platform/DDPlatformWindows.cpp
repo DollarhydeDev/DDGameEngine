@@ -1,5 +1,7 @@
 #include "platform/DDPlatformWindows.h"
 
+#include <timeapi.h>
+
 DDPlatformWindows::DDPlatformWindows()
     : _instance{ nullptr },
     _window{ nullptr },
@@ -77,6 +79,7 @@ int DDPlatformWindows::Init(int width, int height, const char* title)
 
     if (!_window) return -1;
 
+    timeBeginPeriod(1);
     QueryPerformanceFrequency(&_performanceFrequency);
     QueryPerformanceCounter(&_lastCounter);
 
@@ -157,6 +160,8 @@ void DDPlatformWindows::SleepMilliseconds(int milliseconds)
 
 void DDPlatformWindows::Shutdown()
 {
+    timeEndPeriod(1);
+
     if (_window)
     {
         DestroyWindow(_window);

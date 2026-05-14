@@ -26,10 +26,7 @@ if(WIN32)
         ${CMAKE_CURRENT_SOURCE_DIR}/src/renderer/DDRendererWindows.cpp
     )
 
-    target_link_libraries(DDGameEngine PRIVATE
-        user32
-        gdi32
-    )
+    target_link_libraries(DDGameEngine PRIVATE user32 gdi32 winmm)
 elseif(UNIX)
     find_package(X11 REQUIRED)
 
@@ -38,9 +35,7 @@ elseif(UNIX)
         ${CMAKE_CURRENT_SOURCE_DIR}/src/renderer/DDRendererLinux.cpp
     )
 
-    target_link_libraries(DDGameEngine PRIVATE
-        X11::X11
-    )
+    target_link_libraries(DDGameEngine PRIVATE X11::X11)
 else()
     message(FATAL_ERROR "Unsupported platform")
 endif()
