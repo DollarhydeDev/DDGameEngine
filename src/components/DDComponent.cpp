@@ -40,9 +40,6 @@ void DDComponent::SetOwner(DDGameObject* owner)
     _ownerID = owner ? owner->GetGameObjectID() : -1;
 }
 
-void DDComponent::Init()
-{}
-
 void DDComponent::Start()
 {}
 

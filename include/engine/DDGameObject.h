@@ -27,7 +27,6 @@ public:
     DDGameObject();
     DDGameObject(int gameObjectID, DDGameWorld* world);
 
-    void Init();
     void Start();
     void Update(float deltaTime);
 };

@@ -92,12 +92,6 @@ DDRenderComponent* DDGameWorld::SpawnRenderComponent(DDGameObject* owner)
     return component;
 }
 
-void DDGameWorld::Init()
-{
-    for (int i = 0; i < _worldGameObjects.Size(); i++) _worldGameObjects.GetAt(i)->Init();
-    for (int i = 0; i < _worldComponents.Size(); i++) _worldComponents.GetAt(i)->Init();
-}
-
 void DDGameWorld::Start()
 {
     SpawnGameObject(20.0f, 20.0f, 300.0f, 180.0f);

@@ -36,9 +36,6 @@ void DDGameObject::SetRender(DDRenderComponent* render)
     _render = render;
 }
 
-void DDGameObject::Init()
-{}
-
 void DDGameObject::Start()
 {}
 

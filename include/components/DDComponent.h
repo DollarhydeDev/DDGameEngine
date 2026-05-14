@@ -24,7 +24,6 @@ public:
     void SetComponentID(int componentID);
     void SetOwner(DDGameObject* owner);
 
-    virtual void Init();
     virtual void Start();
     virtual void Update(float deltaTime);
 };

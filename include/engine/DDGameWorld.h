@@ -37,7 +37,6 @@ public:
     DDGameWorld(DDGameEngine* gameEngine);
     ~DDGameWorld();
 
-    void Init();
     void Start();
     void Update(float deltaTime);
 };
