@@ -14,10 +14,14 @@ add_executable(DDGameEngine
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/systems/DDRenderSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/systems/DDInputSystem.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/systems/DDMovementSystem.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/components/DDComponent.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/components/DDTransformComponent.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/components/DDRenderComponent.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/components/DDMovementComponent.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/components/DDPlayerControllerComponent.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/components/DDEnemyControllerComponent.cpp
 )
 
 target_include_directories(DDGameEngine PRIVATE

@@ -1,9 +1,9 @@
 #include "DDGameObject.h"
 
-DDGameObject::DDGameObject() : _gameObjectID{ -1 }, _world{ nullptr }, _transform{ nullptr }, _render{ nullptr }
+DDGameObject::DDGameObject() : _gameObjectID{ -1 }, _world{ nullptr }, _transform{ nullptr }, _render{ nullptr }, _movement{ nullptr }
 {}
 
-DDGameObject::DDGameObject(int gameObjectID, DDGameWorld* world) : _gameObjectID{ gameObjectID }, _world{ world }, _transform{ nullptr }, _render{ nullptr }
+DDGameObject::DDGameObject(int gameObjectID, DDGameWorld* world) : _gameObjectID{ gameObjectID }, _world{ world }, _transform{ nullptr }, _render{ nullptr }, _movement{ nullptr }
 {}
 
 int DDGameObject::GetGameObjectID() const
@@ -34,6 +34,16 @@ DDRenderComponent* DDGameObject::GetRender() const
 void DDGameObject::SetRender(DDRenderComponent* render)
 {
     _render = render;
+}
+
+DDMovementComponent* DDGameObject::GetMovement() const
+{
+    return _movement;
+}
+
+void DDGameObject::SetMovement(DDMovementComponent* movement)
+{
+    _movement = movement;
 }
 
 void DDGameObject::Start()

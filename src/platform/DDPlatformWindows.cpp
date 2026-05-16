@@ -2,13 +2,7 @@
 
 #include <timeapi.h>
 
-DDPlatformWindows::DDPlatformWindows()
-    : _instance{ nullptr },
-    _window{ nullptr },
-    _windowWidth{ 800 },
-    _windowHeight{ 600 },
-    _performanceFrequency{},
-    _lastCounter{}
+DDPlatformWindows::DDPlatformWindows() : _instance{ nullptr }, _window{ nullptr }, _windowWidth{ 800 }, _windowHeight{ 600 }, _performanceFrequency{}, _lastCounter{}
 {}
 
 LRESULT CALLBACK DDPlatformWindows::WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)

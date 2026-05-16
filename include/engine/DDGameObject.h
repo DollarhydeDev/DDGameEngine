@@ -3,6 +3,7 @@
 class DDGameWorld;
 class DDTransformComponent;
 class DDRenderComponent;
+class DDMovementComponent;
 
 class DDGameObject
 {
@@ -12,6 +13,7 @@ private:
 
     DDTransformComponent* _transform;
     DDRenderComponent* _render;
+    DDMovementComponent* _movement;
 
 public:
     int GetGameObjectID() const;
@@ -22,6 +24,9 @@ public:
 
     DDRenderComponent* GetRender() const;
     void SetRender(DDRenderComponent* render);
+
+    DDMovementComponent* GetMovement() const;
+    void SetMovement(DDMovementComponent* movement);
 
 public:
     DDGameObject();

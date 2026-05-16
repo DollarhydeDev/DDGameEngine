@@ -3,6 +3,7 @@
 #include "DDGameWorld.h"
 #include "DDRenderSystem.h"
 #include "DDInputSystem.h"
+#include "DDMovementSystem.h"
 
 class IDDPlatform;
 class IDDRenderer;
@@ -16,8 +17,12 @@ private:
     DDGameWorld _gameWorld;
     DDRenderSystem _renderSystem;
     DDInputSystem _inputSystem;
+    DDMovementSystem _movementSystem;
 
     bool _isRunning;
+
+public:
+    DDInputSystem* GetInputSystem();
 
 public:
     DDGameEngine();

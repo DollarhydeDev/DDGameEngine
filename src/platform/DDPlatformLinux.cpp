@@ -2,14 +2,7 @@
 
 #include <X11/keysym.h>
 
-DDPlatformLinux::DDPlatformLinux()
-    : _display{ nullptr },
-    _rootWindow{},
-    _window{},
-    _screen{ -1 },
-    _windowWidth{ 800 },
-    _windowHeight{ 600 },
-    _lastTime{}
+DDPlatformLinux::DDPlatformLinux() : _display{ nullptr }, _rootWindow{}, _window{}, _screen{ -1 }, _windowWidth{ 800 }, _windowHeight{ 600 }, _lastTime{}
 {}
 
 int DDPlatformLinux::Init(int width, int height, const char* title)

@@ -4,8 +4,7 @@
 #include "IDDRenderer.h"
 #include "DDGameObject.h"
 #include "DDGameWorld.h"
-#include "DDTransformComponent.h"
-#include "DDVector2.h"
+#include "DDMovementComponent.h"
 
 #if defined(_WIN32)
 #include "DDPlatformWindows.h"
@@ -39,7 +38,7 @@ static IDDRenderer* CreateRenderer()
 #endif
 }
 
-DDGameEngine::DDGameEngine() : _platform{ CreatePlatform() }, _renderer{ CreateRenderer() }, _gameWorld{ this }, _renderSystem{}, _inputSystem{}, _isRunning{ false }
+DDGameEngine::DDGameEngine() : _platform{ CreatePlatform() }, _renderer{ CreateRenderer() }, _gameWorld{ this }, _renderSystem{}, _inputSystem{}, _movementSystem{}, _isRunning{ false }
 {}
 
 DDGameEngine::~DDGameEngine()
@@ -49,6 +48,11 @@ DDGameEngine::~DDGameEngine()
 
     delete _platform;
     _platform = nullptr;
+}
+
+DDInputSystem* DDGameEngine::GetInputSystem()
+{
+    return &_inputSystem;
 }
 
 void DDGameEngine::Start()
@@ -61,28 +65,8 @@ void DDGameEngine::Update(float deltaTime)
 {
     if (_inputSystem.IsKeyDown(DD_KEY_ESCAPE)) _isRunning = false;
 
-    float playerSpeed = 300.0f;
-    float distance = playerSpeed * deltaTime;
-
-    DDGameObject* player = _gameWorld.GetWorldGameObjects().GetAt(0);
-    if (!player) return;
-
-    DDTransformComponent* transform = player->GetTransform();
-    if (!transform) return;
-
-    const DDVector2& position = transform->GetPosition();
-
-    float x = position.x;
-    float y = position.y;
-
-    if (_inputSystem.IsKeyDown(DD_KEY_W)) y -= distance;
-    if (_inputSystem.IsKeyDown(DD_KEY_S)) y += distance;
-    if (_inputSystem.IsKeyDown(DD_KEY_A)) x -= distance;
-    if (_inputSystem.IsKeyDown(DD_KEY_D)) x += distance;
-
-    transform->SetPosition(x, y);
-
     _gameWorld.Update(deltaTime);
+    _movementSystem.Update(&_gameWorld, deltaTime);
 }
 
 void DDGameEngine::Render(float deltaTime)
@@ -119,8 +103,13 @@ int DDGameEngine::Init()
     if (!_platform) return -1;
     if (!_renderer) return -1;
 
-    if (_platform->Init(800, 600, "GameWindow") != 0) return -1;
+    int width = 1280;
+    int height = 720;
+
+    if (_platform->Init(width, height, "GameWindow") != 0) return -1;
     if (_renderer->Init(_platform) != 0) return -1;
+
+    _renderer->ResizeWindow(width, height);
 
     return 0;
 }
